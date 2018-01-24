@@ -126,9 +126,9 @@ public class Markov {
 	//OTHER
 	
 	
-	public static Map<String, List<String>> buildNgramSuffixDictionary(String fileName, int n) throws FileNotFoundException{
+	public static Map<String, List<String>> buildNgramSuffixDictionary(File fileName, int n) throws FileNotFoundException{
 		Map<String, List<String>> map = new HashMap<String, List<String>>();
-		Scanner reader = new Scanner(new File(fileName));
+		Scanner reader = new Scanner((fileName));
 		List<String> all = new ArrayList<String>(), values;
 		String key;
 		while (reader.hasNext()){
@@ -164,7 +164,7 @@ public class Markov {
 	 * @author Suveena Sreenilayan
 	 * @throws FileNotFoundException
 	 */
-	public static String babbleN(String fileName, int n, int length) throws FileNotFoundException{
+	public static String babbleN(File fileName, int n, int length) throws FileNotFoundException{
 		Map<String, List<String>> ngram = buildNgramSuffixDictionary(fileName, n);
 		String prefix  = "", babble = ""; int i = 0, suffix;
 		List<String> suffixes = new ArrayList<>(), result = new ArrayList<>();
@@ -189,7 +189,7 @@ public class Markov {
 		return babble.substring(42);}
 	
 	
-	public static String babbleNMinLength(String fileName, int n, int minLength) throws FileNotFoundException{
+	public static String babbleNMinLength(File fileName, int n, int minLength) throws FileNotFoundException{
 		Map<String, List<String>> ngram = buildNgramSuffixDictionary(fileName, n);
 		String prefix  = "", babble = ""; int i = 0, suffix;
 		List<String> suffixes = new ArrayList<>(), result = new ArrayList<>();
@@ -214,13 +214,40 @@ public class Markov {
 			if (babble.charAt(babble.length() - 2) == 46)
 				babble += "\n";
 		}
-		return babble.substring(42);
+		return babble.substring(43);
+	}
+	
+	
+	public static String babbleNMinLength(File fileName, int n, int minLength, String userinput) throws FileNotFoundException{
+		Map<String, List<String>> ngram = buildNgramSuffixDictionary(fileName, n);
+		String prefix  = "", babble = ""; int i = 0, suffix;
+		List<String> suffixes = new ArrayList<>(), result = new ArrayList<>();
+		Random rand = new Random();
+		prefix = userinput;
+		String[] userinput2 = userinput.split(" ");
+		prefix = prefix.trim();
+		while (i < minLength || result.get(result.size() - 1).charAt(result.get(result.size() - 1).length() - 1) != 46){
+			suffixes = ngram.get(prefix); prefix = "";
+			suffix = rand.nextInt(suffixes.size());
+			if (suffixes.get(suffix).equals("NON_WORD")) i--;
+			else	result.add(suffixes.get(suffix));
+			if (i >= n)
+				for (int k = n; k > 0; k--)
+					prefix += " " + result.get(result.size() - k);
+			else{
+				for (int k = i; k < n - 1; k++) prefix += " " + userinput2[k + 1];
+				for (int k = 0; k < result.size(); k++) prefix += " " + result.get(k);}
+			prefix = prefix.trim();
+			i++;}
+		for (int k = 0; k < result.size(); k++)
+			babble += result.get(k) + " ";
+		return babble;
 	}
 	
 	//public static Map
 	
 	public static void main(String[] args) throws FileNotFoundException {
-		System.out.println(babbleNMinLength("tweets.txt", 3, 20));
+		System.out.println(babbleNMinLength(new File("text.txt"), 3, 20));
 	}
 }
 
